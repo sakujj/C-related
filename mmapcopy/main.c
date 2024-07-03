@@ -7,21 +7,20 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-void print_error_msg(char* error_msg);
 ssize_t reliable_write(int fd, char *buf, size_t n);
 
 int main(int argc, char *argv[]) {
     if (argc <= 1) {
-        print_error_msg("Error: You should specify the file to output\n");
+        fprintf(stderr, "Error: You should specify a file to output\n");
         return EXIT_FAILURE;
     }
 
     if (argc > 2) {
-        print_error_msg("Error: You should specify one file, which has a name without any spaces\n");
+        fprintf(stderr, "Error: You should specify one file, which has a name without any spaces\n");
         return EXIT_FAILURE;
     }
 
-    char *file_name = argv[1];
+    char* file_name = argv[1];
 
     int file_descriptor = open(file_name, O_RDONLY);
     if (file_descriptor == -1) {
@@ -31,6 +30,11 @@ int main(int argc, char *argv[]) {
 
     struct stat file_info;
     fstat(file_descriptor, &file_info);
+
+    if (!S_ISREG(file_info.st_mode)) {
+        fprintf(stderr, "Error: You should specify a regular file\n");
+        return EXIT_FAILURE;
+    }
 
     size_t file_size = file_info.st_size;
 
@@ -67,8 +71,3 @@ ssize_t reliable_write(int fd, char *buf, size_t n) {
 
     return n;
 }
-
-void print_error_msg(char* error_msg) {
-    reliable_write(STDERR_FILENO, error_msg, strlen(error_msg));
-}
-
