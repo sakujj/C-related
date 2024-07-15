@@ -109,7 +109,7 @@ int main(void) {
         return 1;
     };
 
-    struct epoll_event event_list[EVENT_LIST_SIZE] = {0};
+    struct epoll_event event_list[EVENT_LIST_SIZE];
 
     struct thread_pool thread_pool;
     tp_init(&thread_pool, THREAD_COUNT);
@@ -157,8 +157,7 @@ int main(void) {
             arg.epoll_fd = epoll_fd;
             arg.fd = fd;
 
-            struct task *task = malloc(sizeof task);
-
+            struct task *task = malloc(sizeof (struct task));
             task->arg = arg;
             task->func = process_client;
 
